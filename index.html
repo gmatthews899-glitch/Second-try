@@ -3,42 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tetris</title>
+    <title>MyPet Adventures</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bubblegum+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app">
-        <div class="sidebar">
-            <h1>Tetris</h1>
-            <div class="panel">
-                <div class="stat"><span>Score</span><strong id="score">0</strong></div>
-                <div class="stat"><span>Level</span><strong id="level">1</strong></div>
-                <div class="stat"><span>Lines</span><strong id="lines">0</strong></div>
-                <div class="stat"><span>High</span><strong id="highscore">0</strong></div>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-text">MyPet <span class="logo-highlight">Adventure</span></span>
             </div>
-            <div class="panel">
-                <h2>Next</h2>
-                <canvas id="next" width="120" height="120"></canvas>
-            </div>
-            <div class="panel controls">
-                <button id="start">Start</button>
-                <button id="pause">Pause</button>
-                <button id="restart">Restart</button>
-            </div>
-            <div class="panel help">
-                <p>
-                    Arrows: Left/Right/Down<br>
-                    Up: Rotate<br>
-                    Space: Hard Drop<br>
-                    P: Pause/Resume
-                </p>
+            <nav class="nav">
+                <a href="#" class="nav-link">Creations</a>
+                <a href="#" class="nav-link">About</a>
+            </nav>
+            <div class="header-actions">
+                <button class="btn btn-primary">Click here to get started!</button>
             </div>
         </div>
-        <canvas id="board" width="300" height="600" aria-label="Tetris board" role="img"></canvas>
+    </header>
+
+    <!-- Animation Section -->
+    <div class="animation-container">
+        <canvas id="animalCanvas" width="1200" height="120"></canvas>
     </div>
+
+    <main class="main">
+        <div class="container">
+            <div class="hero">
+                <h1 class="hero-title">
+                    Let your pet's story begin!
+                </h1>
+                <p class="hero-subtitle">
+                    Create Amazing Pet Adventure Stories of Your Own with the Power of AI
+                </p>
+                
+                <!-- Testimonials Section -->
+                <div class="testimonials-section">
+                    <h2 class="testimonials-title">Paw-some Adventures Shared!</h2>
+                    <div class="testimonials-grid">
+                        <!-- Testimonial 1 -->
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="reviewer-info">
+                                    <h3 class="reviewer-name-display">Mia (Age 8)</h3>
+                                    <h4 class="pet-name-display">Sparky the Beagle</h4>
+                                </div>
+                            </div>
+                            <p class="testimonial-review-display">"I loved making Sparky the star of his own book! We made him a superhero who saves the park from flying squirrels. The pictures looked just like Sparky in real life, and I read it to my friends at school. They all want to make their own now!"</p>
+                            <div class="star-rating">🌟</div>
+                        </div>
+
+                        <!-- Testimonial 2 -->
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="reviewer-info">
+                                    <h3 class="reviewer-name-display">Jayden (Age 10)</h3>
+                                    <h4 class="pet-name-display">Whiskers the Cat</h4>
+                                </div>
+                            </div>
+                            <p class="testimonial-review-display">"This was SO COOL! I got to choose the whole adventure for Whiskers, and he became a pirate looking for treasure. My parents printed the book and we read it at bedtime. Whiskers even sat on my lap while I read it to him!"</p>
+                            <div class="star-rating">🌟</div>
+                        </div>
+
+                        <!-- Testimonial 3 -->
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="reviewer-info">
+                                    <h3 class="reviewer-name-display">Emma (Age 6)</h3>
+                                    <h4 class="pet-name-display">Bubbles the Goldfish</h4>
+                                </div>
+                            </div>
+                            <p class="testimonial-review-display">"I didn't know Bubbles could go on adventures, but now he has a book where he travels under the sea! The story was funny and made me laugh. I want to make another one with all his fishy friends."</p>
+                            <div class="star-rating">🌟</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
     <script src="script.js"></script>
-    
 </body>
 </html>
-
-

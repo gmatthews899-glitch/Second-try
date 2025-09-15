@@ -1,22 +1,14 @@
-## Tetris (Vanilla JS)
+## MyPet Adventures - Landing Page
 
-Open `index.html` in a browser to play. No build needed.
+Open `index.html` in a browser. No build needed.
 
-### Controls
+### What you can do
 
-- Left/Right: Move
-- Down: Soft drop (+1 per cell)
-- Up: Rotate
-- Space: Hard drop (bonus)
-- P: Pause/Resume
+- Write your pet's story in the "Adventure details" box.
+- Click the upload area to select a photo. The selected image will preview in place.
 
-### Features
+### Files
 
-- 10x20 board, 7 tetrominoes
-- Rotation, collision, line clears
-- Score, level (every 10 lines), lines
-- Next piece preview
-- Start/Pause/Restart buttons
-- High score via `localStorage`
-
-
+- `index.html`: Markup for the landing page.
+- `style.css`: Layout and styles for header, details textarea, and upload area.
+- `script.js`: Minimal image upload and preview logic.

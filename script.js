@@ -1,295 +1,631 @@
-// Tetris implementation in vanilla JS
+// MyPet Adventures - Interactive Features with Multi-Animal Animation
 (() => {
-	const BOARD_COLS = 10;
-	const BOARD_ROWS = 20;
-	const TILE = 30; // px, matches canvas 300x600
-	const LEVEL_SPEED_MS = [1000, 820, 700, 600, 520, 460, 420, 380, 340, 300, 260, 220, 200, 180, 160];
+    'use strict';
 
-	const COLORS = {
-		I: '#35c3f3',
-		J: '#4f81ff',
-		L: '#ffa23a',
-		O: '#ffd935',
-		S: '#49e37a',
-		T: '#b66dff',
-		Z: '#ff5a79',
-		G: '#10162a',
-		GRID: '#121833',
-		STROKE: 'rgba(0,0,0,0.25)'
-	};
+    // Canvas and animation variables
+    const canvas = document.getElementById('animalCanvas');
+    const context = canvas.getContext('2d');
+    let animationId;
+    let particles = [];
+    let animals = [];
+    let frameCount = 0;
+    let lastTime = 0;
 
-	const SHAPES = {
-		I: [
-			[[0,1],[1,1],[2,1],[3,1]],
-			[[2,0],[2,1],[2,2],[2,3]],
-			[[0,2],[1,2],[2,2],[3,2]],
-			[[1,0],[1,1],[1,2],[1,3]]
-		],
-		J: [
-			[[0,0],[0,1],[1,1],[2,1]],
-			[[1,0],[2,0],[1,1],[1,2]],
-			[[0,1],[1,1],[2,1],[2,2]],
-			[[1,0],[1,1],[0,2],[1,2]]
-		],
-		L: [
-			[[2,0],[0,1],[1,1],[2,1]],
-			[[1,0],[1,1],[1,2],[2,2]],
-			[[0,1],[1,1],[2,1],[0,2]],
-			[[0,0],[1,0],[1,1],[1,2]]
-		],
-		O: [
-			[[1,0],[2,0],[1,1],[2,1]],
-			[[1,0],[2,0],[1,1],[2,1]],
-			[[1,0],[2,0],[1,1],[2,1]],
-			[[1,0],[2,0],[1,1],[2,1]]
-		],
-		S: [
-			[[1,0],[2,0],[0,1],[1,1]],
-			[[1,0],[1,1],[2,1],[2,2]],
-			[[1,1],[2,1],[0,2],[1,2]],
-			[[0,0],[0,1],[1,1],[1,2]]
-		],
-		T: [
-			[[1,0],[0,1],[1,1],[2,1]],
-			[[1,0],[1,1],[2,1],[1,2]],
-			[[0,1],[1,1],[2,1],[1,2]],
-			[[1,0],[0,1],[1,1],[1,2]]
-		],
-		Z: [
-			[[0,0],[1,0],[1,1],[2,1]],
-			[[2,0],[1,1],[2,1],[1,2]],
-			[[0,1],[1,1],[1,2],[2,2]],
-			[[1,0],[0,1],[1,1],[0,2]]
-		]
-	};
+    // Animal types configuration
+    const animalTypes = {
+        dog: {
+            color: '#8B4513',
+            size: { width: 40, height: 30 },
+            speed: 1.8,
+            frames: 8,
+            frameWidth: 40,
+            frameHeight: 30,
+            y: 70,
+            emoji: '🐕'
+        },
+        bird: {
+            color: '#4169E1',
+            size: { width: 25, height: 20 },
+            speed: 2.2,
+            frames: 6,
+            frameWidth: 25,
+            frameHeight: 20,
+            y: 30,
+            emoji: '🐦'
+        },
+        snake: {
+            color: '#228B22',
+            size: { width: 35, height: 15 },
+            speed: 1.2,
+            frames: 4,
+            frameWidth: 35,
+            frameHeight: 15,
+            y: 90,
+            emoji: '🐍'
+        },
+        cat: {
+            color: '#FF6347',
+            size: { width: 35, height: 25 },
+            speed: 2.0,
+            frames: 6,
+            frameWidth: 35,
+            frameHeight: 25,
+            y: 80,
+            emoji: '🐱'
+        },
+        rabbit: {
+            color: '#DDA0DD',
+            size: { width: 20, height: 25 },
+            speed: 2.5,
+            frames: 8,
+            frameWidth: 20,
+            frameHeight: 25,
+            y: 75,
+            emoji: '🐰'
+        }
+    };
 
-	// DOM
-	const boardCanvas = document.getElementById('board');
-	const nextCanvas = document.getElementById('next');
-	const ctx = boardCanvas.getContext('2d');
-	const nextCtx = nextCanvas.getContext('2d');
-	const scoreEl = document.getElementById('score');
-	const levelEl = document.getElementById('level');
-	const linesEl = document.getElementById('lines');
-	const highEl = document.getElementById('highscore');
-	const startBtn = document.getElementById('start');
-	const pauseBtn = document.getElementById('pause');
-	const restartBtn = document.getElementById('restart');
+    // DOM elements
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.querySelector('.control-btn-send');
+    const voiceButton = document.querySelector('.control-btn[aria-label="Voice input"]');
+    const attachButton = document.querySelector('.control-btn[aria-label="Attach file"]');
+    const publicButton = document.querySelector('.control-btn[aria-label="Make public"]');
 
-	// State
-	let grid = createGrid(BOARD_ROWS, BOARD_COLS);
-	let currentPiece = null;
-	let nextPiece = randomPiece();
-	let dropInterval = LEVEL_SPEED_MS[0];
-	let lastDrop = 0;
-	let isRunning = false;
-	let isPaused = false;
-	let score = 0;
-	let level = 1;
-	let lines = 0;
-	let high = Number(localStorage.getItem('tetris_high') || 0);
-	updateStats();
+    // Initialize the application
+    function init() {
+        setupEventListeners();
+        setupCanvas();
+        setupAnimations();
+        startAnimation();
+    }
 
-	function createGrid(rows, cols) {
-		return Array.from({ length: rows }, () => Array(cols).fill(null));
-	}
+    // Set up event listeners
+    function setupEventListeners() {
+        // Send message functionality
+        if (sendButton) {
+            sendButton.addEventListener('click', handleSendMessage);
+        }
 
-	function randomPiece() {
-		const keys = Object.keys(SHAPES);
-		const type = keys[(Math.random() * keys.length) | 0];
-		return { type, rot: 0, row: 0, col: 3 };
-	}
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSendMessage();
+                }
+            });
 
-	function getBlocks(piece) {
-		const shape = SHAPES[piece.type][piece.rot];
-		return shape.map(([x, y]) => ({ r: piece.row + y, c: piece.col + x }));
-	}
+            // Auto-resize input
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = chatInput.scrollHeight + 'px';
+            });
+        }
 
-	function canMove(piece, dr, dc, drot = 0) {
-		const test = { ...piece, rot: (piece.rot + drot + 4) % 4, row: piece.row + dr, col: piece.col + dc };
-		return getBlocks(test).every(({ r, c }) => r < BOARD_ROWS && c >= 0 && c < BOARD_COLS && (r < 0 || grid[r][c] === null));
-	}
+        // Voice input (placeholder functionality)
+        if (voiceButton) {
+            voiceButton.addEventListener('click', handleVoiceInput);
+        }
 
-	function lockPiece(piece) {
-		for (const { r, c } of getBlocks(piece)) {
-			if (r < 0) { gameOver(); return; }
-			grid[r][c] = piece.type;
-		}
-		const cleared = clearLines();
-		if (cleared > 0) {
-			const points = [0, 100, 300, 500, 800][cleared] * level;
-			score += points;
-			lines += cleared;
-			const newLevel = 1 + Math.floor(lines / 10);
-			if (newLevel !== level) {
-				level = newLevel;
-				dropInterval = LEVEL_SPEED_MS[Math.min(level - 1, LEVEL_SPEED_MS.length - 1)];
-			}
-			if (score > high) { high = score; localStorage.setItem('tetris_high', String(high)); }
-			updateStats();
-		}
-		spawnNext();
-	}
+        // File attachment (placeholder functionality)
+        if (attachButton) {
+            attachButton.addEventListener('click', handleFileAttachment);
+        }
 
-	function clearLines() {
-		let cleared = 0;
-		for (let r = BOARD_ROWS - 1; r >= 0; r--) {
-			if (grid[r].every(cell => cell !== null)) {
-				grid.splice(r, 1);
-				grid.unshift(Array(BOARD_COLS).fill(null));
-				cleared++;
-				r++;
-			}
-		}
-		return cleared;
-	}
+        // Public/Private toggle
+        if (publicButton) {
+            publicButton.addEventListener('click', handlePublicToggle);
+        }
 
-	function spawnNext() {
-		currentPiece = nextPiece;
-		currentPiece.row = -2; // spawn slightly above
-		currentPiece.col = 3;
-		nextPiece = randomPiece();
-		drawNext();
-		if (!canMove(currentPiece, 0, 0, 0)) {
-			gameOver();
-		}
-	}
+        // Add hover effects to control buttons
+        const controlButtons = document.querySelectorAll('.control-btn');
+        controlButtons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'scale(1.1)';
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+    }
 
-	function gameOver() {
-		isRunning = false;
-		isPaused = false;
-		render();
-		showOverlay('Game Over');
-	}
+    // Handle sending messages
+    function handleSendMessage() {
+        const message = chatInput.value.trim();
+        
+        if (!message) {
+            // Add shake animation to input
+            chatInput.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                chatInput.style.animation = '';
+            }, 500);
+            return;
+        }
 
-	function showOverlay(text) {
-		ctx.save();
-		ctx.fillStyle = 'rgba(0,0,0,0.5)';
-		ctx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
-		ctx.fillStyle = '#fff';
-		ctx.font = 'bold 28px Segoe UI, Roboto, Arial';
-		ctx.textAlign = 'center';
-		ctx.fillText(text, boardCanvas.width / 2, boardCanvas.height / 2);
-		ctx.restore();
-	}
+        // Show loading state
+        showLoadingState();
 
-	function updateStats() {
-		scoreEl.textContent = String(score);
-		levelEl.textContent = String(level);
-		linesEl.textContent = String(lines);
-		highEl.textContent = String(high);
-	}
+        // Simulate AI response (in a real app, this would call an API)
+        setTimeout(() => {
+            showResponse(message);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+        }, 1500);
+    }
 
-	function drawCell(x, y, color) {
-		const px = x * TILE;
-		const py = y * TILE;
-		ctx.fillStyle = color;
-		ctx.fillRect(px, py, TILE, TILE);
-		ctx.strokeStyle = COLORS.STROKE;
-		ctx.strokeRect(px + 0.5, py + 0.5, TILE - 1, TILE - 1);
-	}
+    // Show loading state
+    function showLoadingState() {
+        const originalText = sendButton.querySelector('.control-icon').textContent;
+        sendButton.querySelector('.control-icon').textContent = '⏳';
+        sendButton.disabled = true;
+        
+        // Revert after delay
+        setTimeout(() => {
+            sendButton.querySelector('.control-icon').textContent = originalText;
+            sendButton.disabled = false;
+        }, 1500);
+    }
 
-	function render() {
-		ctx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
-		// grid background cells
-		for (let r = 0; r < BOARD_ROWS; r++) {
-			for (let c = 0; c < BOARD_COLS; c++) {
-				drawCell(c, r, grid[r][c] ? COLORS[grid[r][c]] : COLORS.GRID);
-			}
-		}
-		// current piece
-		if (currentPiece) {
-			for (const { r, c } of getBlocks(currentPiece)) {
-				if (r >= 0) drawCell(c, r, COLORS[currentPiece.type]);
-			}
-		}
-	}
+    // Show AI response (placeholder)
+    function showResponse(userMessage) {
+        // Create response element
+        const responseDiv = document.createElement('div');
+        responseDiv.className = 'ai-response';
+        responseDiv.innerHTML = `
+            <div class="response-content">
+                <h3>🐾 Adventure Plan Generated!</h3>
+                <p>I've created a personalized adventure plan based on your request: "${userMessage}"</p>
+                <div class="response-actions">
+                    <button class="btn btn-primary">View Plan</button>
+                    <button class="btn btn-outline">Customize</button>
+                </div>
+            </div>
+        `;
 
-	function drawNext() {
-		nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
-		nextCtx.fillStyle = '#0b0f1f';
-		nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
-		const shape = SHAPES[nextPiece.type][0];
-		const offsetX = 1;
-		const offsetY = 1;
-		for (const [x, y] of shape) {
-			nextCtx.fillStyle = COLORS[nextPiece.type];
-			nextCtx.fillRect((x + offsetX) * 24, (y + offsetY) * 24, 24, 24);
-			nextCtx.strokeStyle = COLORS.STROKE;
-			nextCtx.strokeRect((x + offsetX) * 24 + 0.5, (y + offsetY) * 24 + 0.5, 23, 23);
-		}
-	}
+        // Insert after chat container
+        const chatContainer = document.querySelector('.chat-container');
+        chatContainer.parentNode.insertBefore(responseDiv, chatContainer.nextSibling);
 
-	function tick(timestamp) {
-		if (!isRunning || isPaused) return;
-		if (!lastDrop) lastDrop = timestamp;
-		const delta = timestamp - lastDrop;
-		if (delta >= dropInterval) {
-			if (canMove(currentPiece, 1, 0)) {
-				currentPiece.row += 1;
-			} else {
-				lockPiece(currentPiece);
-			}
-			lastDrop = timestamp;
-		}
-		render();
-		requestAnimationFrame(tick);
-	}
+        // Animate in
+        responseDiv.style.opacity = '0';
+        responseDiv.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            responseDiv.style.transition = 'all 0.3s ease';
+            responseDiv.style.opacity = '1';
+            responseDiv.style.transform = 'translateY(0)';
+        }, 100);
 
-	function startGame() {
-		grid = createGrid(BOARD_ROWS, BOARD_COLS);
-		score = 0; level = 1; lines = 0; dropInterval = LEVEL_SPEED_MS[0];
-		updateStats();
-		currentPiece = null; nextPiece = randomPiece();
-		spawnNext();
-		isRunning = true; isPaused = false; lastDrop = 0;
-		render();
-		requestAnimationFrame(tick);
-	}
+        // Remove after 10 seconds
+        setTimeout(() => {
+            responseDiv.style.transition = 'all 0.3s ease';
+            responseDiv.style.opacity = '0';
+            responseDiv.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                responseDiv.remove();
+            }, 300);
+        }, 10000);
+    }
 
-	function togglePause() {
-		if (!isRunning) return;
-		isPaused = !isPaused;
-		if (!isPaused) requestAnimationFrame(tick);
-		render();
-		if (isPaused) showOverlay('Paused');
-	}
+    // Handle voice input (placeholder)
+    function handleVoiceInput() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Voice input is not supported in this browser. Please type your message instead.');
+            return;
+        }
 
-	function hardDrop() {
-		if (!isRunning || isPaused) return;
-		let distance = 0;
-		while (canMove(currentPiece, distance + 1, 0)) distance++;
-		currentPiece.row += distance;
-		score += 2 * distance; // small bonus for hard drop
-		updateStats();
-		lockPiece(currentPiece);
-		render();
-	}
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
-	// Controls
-	window.addEventListener('keydown', (e) => {
-		if (!isRunning || isPaused) {
-			if (e.code === 'KeyP') { togglePause(); }
-			if (e.code === 'Space' && !isRunning) { startGame(); }
-			return;
-		}
-		switch (e.code) {
-			case 'ArrowLeft': if (canMove(currentPiece, 0, -1)) { currentPiece.col--; render(); } break;
-			case 'ArrowRight': if (canMove(currentPiece, 0, 1)) { currentPiece.col++; render(); } break;
-			case 'ArrowDown': if (canMove(currentPiece, 1, 0)) { currentPiece.row++; score += 1; updateStats(); render(); } break;
-			case 'ArrowUp': if (canMove(currentPiece, 0, 0, 1)) { currentPiece.rot = (currentPiece.rot + 1) % 4; render(); } break;
-			case 'Space': hardDrop(); break;
-			case 'KeyP': togglePause(); break;
-		}
-	});
+        recognition.onstart = () => {
+            voiceButton.style.background = '#4f46e5';
+            voiceButton.style.color = 'white';
+        };
 
-	startBtn.addEventListener('click', startGame);
-	pauseBtn.addEventListener('click', togglePause);
-	restartBtn.addEventListener('click', startGame);
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            chatInput.value = transcript;
+            chatInput.focus();
+        };
 
-	// initial draw
-	render();
-	drawNext();
+        recognition.onend = () => {
+            voiceButton.style.background = '';
+            voiceButton.style.color = '';
+        };
+
+        recognition.start();
+    }
+
+    // Handle file attachment (placeholder)
+    function handleFileAttachment() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,video/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Show file attached indicator
+                attachButton.style.background = '#10b981';
+                attachButton.style.color = 'white';
+                attachButton.querySelector('.control-icon').textContent = '✓';
+                
+                setTimeout(() => {
+                    attachButton.style.background = '';
+                    attachButton.style.color = '';
+                    attachButton.querySelector('.control-icon').textContent = '📎';
+                }, 2000);
+            }
+        };
+        input.click();
+    }
+
+    // Handle public/private toggle
+    function handlePublicToggle() {
+        const isPublic = publicButton.classList.contains('active');
+        
+        if (isPublic) {
+            publicButton.classList.remove('active');
+            publicButton.style.background = '';
+            publicButton.style.color = '';
+            publicButton.querySelector('.control-icon').textContent = '🌐';
+        } else {
+            publicButton.classList.add('active');
+            publicButton.style.background = '#4f46e5';
+            publicButton.style.color = 'white';
+            publicButton.querySelector('.control-icon').textContent = '🔒';
+        }
+    }
+
+    // Set up canvas
+    function setupCanvas() {
+        // Set canvas size to match container
+        const resizeCanvas = () => {
+            const container = canvas.parentElement;
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+        };
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+    }
+
+    // Set up animations
+    function setupAnimations() {
+        // Initialize particles
+        initParticles();
+        
+        // Initialize animals
+        initAnimals();
+        
+        // Add shake animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            
+            .ai-response {
+                margin-top: 24px;
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 16px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .response-content h3 {
+                color: #1a1a1a;
+                margin-bottom: 12px;
+                font-size: 18px;
+            }
+            
+            .response-content p {
+                color: #4a4a4a;
+                margin-bottom: 16px;
+            }
+            
+            .response-actions {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            
+            .response-actions .btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Initialize particles (based on the GitHub repo)
+    function initParticles() {
+        particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    // Particle class (based on the GitHub repo)
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * (canvas.height / 2) + canvas.height / 4;
+            this.vx = (Math.random() - 0.5) * 2;
+            this.vy = (Math.random() - 0.5) * 2;
+            this.alpha = Math.random() * 0.5 + 0.3;
+            this.size = Math.random() * 3 + 1;
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            
+            // Wrap around screen
+            if (this.x < 0) this.x = canvas.width;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.y < 0) this.y = canvas.height;
+            if (this.y > canvas.height) this.y = 0;
+        }
+
+        draw() {
+            context.save();
+            context.globalAlpha = this.alpha;
+            context.fillStyle = '#D95D50';
+            context.beginPath();
+            context.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            context.fill();
+            context.restore();
+        }
+    }
+
+    // Initialize animals
+    function initAnimals() {
+        animals = [];
+        
+        // Create initial chase sequence: snake -> bird -> cat -> rabbit -> dog
+        const chaseOrder = ['snake', 'bird', 'cat', 'rabbit', 'dog'];
+        
+        chaseOrder.forEach((type, index) => {
+            setTimeout(() => {
+                animals.push(new Animal(type, -100 - (index * 120)));
+            }, index * 600);
+        });
+        
+        // Restart the chase sequence every 8 seconds for constant flow
+        setInterval(() => {
+            chaseOrder.forEach((type, index) => {
+                setTimeout(() => {
+                    animals.push(new Animal(type, -100 - (index * 120)));
+                }, index * 600);
+            });
+        }, 8000);
+        
+        // Add random animals every 2-4 seconds for variety
+        setInterval(() => {
+            const types = Object.keys(animalTypes);
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            animals.push(new Animal(randomType, -100));
+        }, 2000 + Math.random() * 2000);
+    }
+
+    // Animal class
+    class Animal {
+        constructor(type, startX = -100) {
+            this.type = type;
+            this.config = animalTypes[type];
+            this.x = startX;
+            this.y = this.config.y;
+            this.frameIndex = 0;
+            this.animationSpeed = 0.3;
+            this.speed = this.config.speed;
+            this.isActive = true;
+            this.originalSpeed = this.config.speed;
+            this.chaseTarget = null;
+            this.energy = 100;
+        }
+
+        update() {
+            if (!this.isActive) return;
+            
+            // Update position
+            this.x += this.speed;
+            this.frameIndex += this.animationSpeed;
+            
+            // Reset frame index
+            if (this.frameIndex >= this.config.frames) {
+                this.frameIndex = 0;
+            }
+            
+            // Chase behavior - speed up when chasing
+            this.updateChaseBehavior();
+            
+            // Add some vertical movement for more dynamic animation
+            this.y = this.config.y + Math.sin(this.frameIndex * 0.5) * 2;
+            
+            // Remove if off screen
+            if (this.x > canvas.width + 100) {
+                this.isActive = false;
+            }
+        }
+
+        updateChaseBehavior() {
+            // Find the animal ahead in the chase sequence
+            const chaseOrder = ['snake', 'bird', 'cat', 'rabbit', 'dog'];
+            const currentIndex = chaseOrder.indexOf(this.type);
+            const targetType = chaseOrder[currentIndex + 1];
+            
+            if (targetType) {
+                const target = animals.find(animal => 
+                    animal.type === targetType && 
+                    animal.isActive && 
+                    animal.x > this.x && 
+                    animal.x < this.x + 300
+                );
+                
+                if (target) {
+                    // Speed up when chasing (less aggressive)
+                    this.speed = this.originalSpeed * 1.15;
+                    this.chaseTarget = target;
+                } else {
+                    this.speed = this.originalSpeed;
+                    this.chaseTarget = null;
+                }
+            }
+        }
+
+        draw() {
+            if (!this.isActive) return;
+            
+            context.save();
+            
+            // Draw shadow
+            context.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            context.fillRect(
+                this.x + 2, 
+                this.y + this.config.size.height + 2, 
+                this.config.size.width, 
+                4
+            );
+            
+            // Draw animal body with gradient
+            const gradient = context.createLinearGradient(
+                this.x, this.y, 
+                this.x + this.config.size.width, 
+                this.y + this.config.size.height
+            );
+            gradient.addColorStop(0, this.config.color);
+            gradient.addColorStop(1, this.lightenColor(this.config.color, 20));
+            
+            context.fillStyle = gradient;
+            context.fillRect(
+                this.x, 
+                this.y, 
+                this.config.size.width, 
+                this.config.size.height
+            );
+            
+            // Add border
+            context.strokeStyle = this.darkenColor(this.config.color, 20);
+            context.lineWidth = 1;
+            context.strokeRect(
+                this.x, 
+                this.y, 
+                this.config.size.width, 
+                this.config.size.height
+            );
+            
+            // Draw emoji
+            context.font = '20px Arial';
+            context.textAlign = 'center';
+            context.fillText(
+                this.config.emoji, 
+                this.x + this.config.size.width / 2, 
+                this.y + this.config.size.height / 2 + 7
+            );
+            
+            // Add running effect (bobbing motion)
+            const bobOffset = Math.sin(this.frameIndex * 2) * 2;
+            context.translate(0, bobOffset);
+            
+            // Draw simple running animation effect
+            if (this.type === 'dog' || this.type === 'cat' || this.type === 'rabbit') {
+                // Draw legs
+                context.fillStyle = this.darkenColor(this.config.color, 30);
+                const legHeight = 8;
+                const legSpacing = this.config.size.width / 4;
+                
+                for (let i = 0; i < 4; i++) {
+                    const legX = this.x + (i * legSpacing) + legSpacing / 2;
+                    const legY = this.y + this.config.size.height;
+                    const legBob = Math.sin((this.frameIndex + i * 0.5) * 4) * 3;
+                    
+                    context.fillRect(legX, legY + legBob, 3, legHeight);
+                }
+            }
+            
+            // Add chase effect (speed lines)
+            if (this.chaseTarget) {
+                context.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                context.lineWidth = 1;
+                for (let i = 0; i < 3; i++) {
+                    context.beginPath();
+                    context.moveTo(this.x - 10 - (i * 5), this.y + 5);
+                    context.lineTo(this.x - 5 - (i * 5), this.y + 5);
+                    context.stroke();
+                }
+            }
+            
+            context.restore();
+        }
+
+        lightenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        }
+
+        darkenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+            return "#" + (0x1000000 + (R > 255 ? 255 : R < 0 ? 0 : R) * 0x10000 +
+                (G > 255 ? 255 : G < 0 ? 0 : G) * 0x100 +
+                (B > 255 ? 255 : B < 0 ? 0 : B)).toString(16).slice(1);
+        }
+    }
+
+    // Start animation loop
+    function startAnimation() {
+        function animate(currentTime) {
+            // Clear canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Update and draw animals
+            animals.forEach(animal => {
+                animal.update();
+                animal.draw();
+            });
+            
+            // Remove inactive animals
+            animals = animals.filter(animal => animal.isActive);
+            
+            // Ensure minimum number of animals for constant flow
+            if (animals.length < 2 && Math.random() < 0.01) {
+                const types = Object.keys(animalTypes);
+                const randomType = types[Math.floor(Math.random() * types.length)];
+                animals.push(new Animal(randomType, -100));
+            }
+            
+            frameCount++;
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        animationId = requestAnimationFrame(animate);
+    }
+
+    // Initialize when DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();
-
-
