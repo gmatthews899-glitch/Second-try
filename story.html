@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyPet Story - MyPet Adventures</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-text">MyPet <span class="logo-highlight">Adventure</span></span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">Create New Story</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Animation Section -->
+    <div class="animation-container">
+        <canvas id="animalCanvas" width="1200" height="120"></canvas>
+    </div>
+
+    <main class="main">
+        <div class="container">
+            <div class="hero">
+                <h1 class="hero-title">
+                    Your MyPet Story Awaits!
+                </h1>
+                
+                <div class="story-pdf-container">
+                    <div class="story-pdf-box">
+                        <!-- Page content will be displayed here -->
+                        <div class="story-page-content" id="storyPageContent">
+                            <!-- Page content will be dynamically loaded here -->
+                        </div>
+                        
+                        <!-- Pagination controls -->
+                        <div class="story-pagination">
+                            <button class="pagination-btn pagination-prev" id="prevBtn" disabled>
+                                <span class="pagination-icon">←</span>
+                                <span class="pagination-text">Previous</span>
+                            </button>
+                            
+                            <div class="pagination-info">
+                                <span class="current-page" id="currentPage">1</span>
+                                <span class="page-separator">/</span>
+                                <span class="total-pages" id="totalPages">8</span>
+                            </div>
+                            
+                            <button class="pagination-btn pagination-next" id="nextBtn">
+                                <span class="pagination-text">Next</span>
+                                <span class="pagination-icon">→</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="story-download-container">
+                        <button class="btn btn-primary btn-download">
+                            Download MyPet Adventure
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

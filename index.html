@@ -32,7 +32,8 @@
 
     <main class="main">
         <div class="container">
-            <div class="hero">
+            <!-- Landing Page Content -->
+            <div class="hero" id="landingPage">
                 <h1 class="hero-title">
                     Let your pet's story begin!
                 </h1>
@@ -80,6 +81,123 @@
                             <div class="star-rating">🌟</div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Get Started Screen -->
+            <div class="get-started-screen" id="getStartedScreen" style="display: none;">
+                <h1 class="hero-title">
+                    Let's Get Started!
+                </h1>
+                <p class="hero-subtitle">
+                    Ready to create your pet's amazing adventure story?
+                </p>
+                
+                <div class="get-started-content">
+                    <div class="get-started-card">
+                        <h3>Step 1: Tell us about your pet</h3>
+                        <div class="form-field">
+                            <label for="species">Species:</label>
+                            <input type="text" id="species" placeholder="e.g., dog, cat, snake, rabbit, etc.">
+                        </div>
+                        <div class="form-field">
+                            <label for="breed">Breed or Type:</label>
+                            <input type="text" id="breed" placeholder="e.g., Golden Retriever, Persian, Ball Python, etc.">
+                        </div>
+                        <div class="form-field">
+                            <label for="petName">MyPet Name:</label>
+                            <input type="text" id="petName" placeholder="e.g., Buddy, Whiskers, Luna, etc.">
+                        </div>
+                        
+                        <div class="three-words-section">
+                            <h4 class="three-words-title">Describe Your MyPet in 3 Words:</h4>
+                            <div class="three-words-container">
+                                <div class="word-field">
+                                    <input type="text" id="word1" placeholder="e.g., playful" maxlength="20">
+                                </div>
+                                <div class="word-field">
+                                    <input type="text" id="word2" placeholder="e.g., loyal" maxlength="20">
+                                </div>
+                                <div class="word-field">
+                                    <input type="text" id="word3" placeholder="e.g., energetic" maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="get-started-card">
+                        <h3>Step 2: Choose an adventure</h3>
+                        <p>Pick from our exciting adventure themes or create your own!</p>
+                        
+                        <div class="adventure-selection-container">
+                            <div class="adventure-buttons-grid">
+                                <button class="adventure-btn" data-adventure="magical-forest">
+                                    <span class="adventure-emoji">🌲</span>
+                                    <span class="adventure-name">Magical Forest</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="pirate-island">
+                                    <span class="adventure-emoji">🏴‍☠️</span>
+                                    <span class="adventure-name">Pirate Island</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="space-station">
+                                    <span class="adventure-emoji">🚀</span>
+                                    <span class="adventure-name">Space Station</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="underwater-kingdom">
+                                    <span class="adventure-emoji">🐠</span>
+                                    <span class="adventure-name">Underwater Kingdom</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="ancient-castle">
+                                    <span class="adventure-emoji">🏰</span>
+                                    <span class="adventure-name">Ancient Castle</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="farmyard-adventure">
+                                    <span class="adventure-emoji">🚜</span>
+                                    <span class="adventure-name">Farmyard Adventure</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="snowy-mountain-village">
+                                    <span class="adventure-emoji">🏔️</span>
+                                    <span class="adventure-name">Snowy Mountain Village</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="jungle-safari">
+                                    <span class="adventure-emoji">🦁</span>
+                                    <span class="adventure-name">Jungle Safari</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="desert-oasis">
+                                    <span class="adventure-emoji">🏜️</span>
+                                    <span class="adventure-name">Desert Oasis</span>
+                                </button>
+                                <button class="adventure-btn" data-adventure="big-city-park">
+                                    <span class="adventure-emoji">🏙️</span>
+                                    <span class="adventure-name">Big City Park</span>
+                                </button>
+                            </div>
+                            
+                            <div class="adventure-description-area">
+                                <div class="adventure-description-content">
+                                    <h4 class="adventure-description-title">Choose an Adventure</h4>
+                                    <p class="adventure-description-text">Hover over or click on an adventure button to see what exciting story awaits your pet!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="get-started-card">
+                        <h3>Step 3: Upload a Photo of Your MyPet</h3>
+                        <p></p>
+                        <div class="upload-photo-placeholder" onclick="document.getElementById('petPhotoInput').click()">
+                            <span class="upload-text">click to upload photo</span>
+                            <input type="file" id="petPhotoInput" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="get-started-card">
+                        <h3>Step 4: Add Your Payment Method</h3>
+                    </div>
+                </div>
+
+                <div class="get-started-actions">
+                    <button class="btn btn-outline">Start Creating</button>
                 </div>
             </div>
         </div>

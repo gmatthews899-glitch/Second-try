@@ -72,12 +72,57 @@
     const attachButton = document.querySelector('.control-btn[aria-label="Attach file"]');
     const publicButton = document.querySelector('.control-btn[aria-label="Make public"]');
 
+    // Adventure descriptions data
+    const adventureDescriptions = {
+        'magical-forest': {
+            title: 'Magical Forest',
+            description: 'Your pet steps into a glowing forest where animals talk, mushrooms light the way, and tiny fairy houses hide secrets waiting to be discovered.'
+        },
+        'pirate-island': {
+            title: 'Pirate Island',
+            description: 'Your pet sails to a sandy island, finds an old treasure map, and teams up with friendly pirates to hunt for gold in secret caves.'
+        },
+        'space-station': {
+            title: 'Space Station',
+            description: 'Your pet blasts off to a shiny space station, floats through zero-gravity halls, and meets curious aliens who need help with a space mission.'
+        },
+        'underwater-kingdom': {
+            title: 'Underwater Kingdom',
+            description: 'Your pet dives beneath the waves into a coral palace, plays with mermaids, swims with sea turtles, and finds hidden treasure on the ocean floor.'
+        },
+        'ancient-castle': {
+            title: 'Ancient Castle',
+            description: 'Your pet explores a huge castle, sneaks through secret passageways, and befriends a kind dragon who needs help protecting the royal crown.'
+        },
+        'farmyard-adventure': {
+            title: 'Farmyard Adventure',
+            description: 'Your pet trots into a sunny farm full of clucking chickens and mooing cows, solving farmyard puzzles and helping the farmer with a mystery.'
+        },
+        'snowy-mountain-village': {
+            title: 'Snowy Mountain Village',
+            description: 'Your pet visits a snow-covered town, zips down magical ski slopes, drinks cocoa with new friends, and helps the winter animals prepare for a snow festival.'
+        },
+        'jungle-safari': {
+            title: 'Jungle Safari',
+            description: 'Your pet explores a wild jungle, swings on vines with monkeys, climbs to treehouses, and discovers a hidden waterfall full of clues.'
+        },
+        'desert-oasis': {
+            title: 'Desert Oasis',
+            description: 'Your pet journeys through hot desert sands to a sparkling oasis, finds ancient ruins, and solves riddles to unlock a mysterious cave.'
+        },
+        'big-city-park': {
+            title: 'Big City Park',
+            description: 'Your pet runs through a busy city park, splashes in fountains, meets street performers, and discovers a hidden playground no one else has seen.'
+        }
+    };
+
     // Initialize the application
     function init() {
         setupEventListeners();
         setupCanvas();
         setupAnimations();
         startAnimation();
+        setupAdventureSelection();
     }
 
     // Set up event listeners
@@ -128,6 +173,19 @@
                 btn.style.transform = 'scale(1)';
             });
         });
+
+        // Get Started button functionality
+        const getStartedBtn = document.querySelector('.btn-primary');
+        if (getStartedBtn && getStartedBtn.textContent.includes('Click here to get started')) {
+            getStartedBtn.addEventListener('click', showGetStartedScreen);
+        }
+
+        // Start Creating button functionality
+        const startCreatingBtn = document.querySelector('.btn-outline');
+        if (startCreatingBtn && startCreatingBtn.textContent.includes('Start Creating')) {
+            startCreatingBtn.addEventListener('click', navigateToStoryPage);
+        }
+
     }
 
     // Handle sending messages
@@ -146,9 +204,8 @@
         // Show loading state
         showLoadingState();
 
-        // Simulate AI response (in a real app, this would call an API)
+        // Clear input after sending
         setTimeout(() => {
-            showResponse(message);
             chatInput.value = '';
             chatInput.style.height = 'auto';
         }, 1500);
@@ -167,45 +224,6 @@
         }, 1500);
     }
 
-    // Show AI response (placeholder)
-    function showResponse(userMessage) {
-        // Create response element
-        const responseDiv = document.createElement('div');
-        responseDiv.className = 'ai-response';
-        responseDiv.innerHTML = `
-            <div class="response-content">
-                <h3>🐾 Adventure Plan Generated!</h3>
-                <p>I've created a personalized adventure plan based on your request: "${userMessage}"</p>
-                <div class="response-actions">
-                    <button class="btn btn-primary">View Plan</button>
-                    <button class="btn btn-outline">Customize</button>
-                </div>
-            </div>
-        `;
-
-        // Insert after chat container
-        const chatContainer = document.querySelector('.chat-container');
-        chatContainer.parentNode.insertBefore(responseDiv, chatContainer.nextSibling);
-
-        // Animate in
-        responseDiv.style.opacity = '0';
-        responseDiv.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            responseDiv.style.transition = 'all 0.3s ease';
-            responseDiv.style.opacity = '1';
-            responseDiv.style.transform = 'translateY(0)';
-        }, 100);
-
-        // Remove after 10 seconds
-        setTimeout(() => {
-            responseDiv.style.transition = 'all 0.3s ease';
-            responseDiv.style.opacity = '0';
-            responseDiv.style.transform = 'translateY(-20px)';
-            setTimeout(() => {
-                responseDiv.remove();
-            }, 300);
-        }, 10000);
-    }
 
     // Handle voice input (placeholder)
     function handleVoiceInput() {
@@ -278,6 +296,57 @@
         }
     }
 
+    // Show Get Started screen
+    function showGetStartedScreen() {
+        const landingPage = document.getElementById('landingPage');
+        const getStartedScreen = document.getElementById('getStartedScreen');
+        const nav = document.querySelector('.nav');
+        const headerActions = document.querySelector('.header-actions');
+        const animationContainer = document.querySelector('.animation-container');
+        
+        if (landingPage && getStartedScreen) {
+            landingPage.style.display = 'none';
+            getStartedScreen.style.display = 'block';
+            
+            // Hide navigation elements and animation
+            if (nav) nav.style.display = 'none';
+            if (headerActions) headerActions.style.display = 'none';
+            if (animationContainer) animationContainer.style.display = 'none';
+            
+            // Add smooth transition effect
+            getStartedScreen.style.opacity = '0';
+            getStartedScreen.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                getStartedScreen.style.transition = 'all 0.3s ease';
+                getStartedScreen.style.opacity = '1';
+                getStartedScreen.style.transform = 'translateY(0)';
+            }, 10);
+        }
+    }
+
+    // Navigate to story page
+    function navigateToStoryPage() {
+        // Collect form data before navigating
+        const formData = {
+            species: document.getElementById('species')?.value || '',
+            breed: document.getElementById('breed')?.value || '',
+            petName: document.getElementById('petName')?.value || '',
+            word1: document.getElementById('word1')?.value || '',
+            word2: document.getElementById('word2')?.value || '',
+            word3: document.getElementById('word3')?.value || '',
+            adventure: document.querySelector('.adventure-btn.selected')?.dataset.adventure || '',
+            photo: document.getElementById('petPhotoInput')?.files[0]?.name || ''
+        };
+
+        // Store form data in localStorage for the story page
+        localStorage.setItem('petStoryData', JSON.stringify(formData));
+
+        // Navigate to story page
+        window.location.href = 'story.html';
+    }
+
+
     // Set up canvas
     function setupCanvas() {
         // Set canvas size to match container
@@ -308,37 +377,6 @@
                 75% { transform: translateX(5px); }
             }
             
-            .ai-response {
-                margin-top: 24px;
-                padding: 20px;
-                background: rgba(255, 255, 255, 0.95);
-                border-radius: 16px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            
-            .response-content h3 {
-                color: #1a1a1a;
-                margin-bottom: 12px;
-                font-size: 18px;
-            }
-            
-            .response-content p {
-                color: #4a4a4a;
-                margin-bottom: 16px;
-            }
-            
-            .response-actions {
-                display: flex;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-            
-            .response-actions .btn {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
         `;
         document.head.appendChild(style);
     }
@@ -622,10 +660,273 @@
         animationId = requestAnimationFrame(animate);
     }
 
+    // Single word input functionality
+    function enforceSingleWord(input) {
+        input.addEventListener('input', function(e) {
+            let value = e.target.value;
+            // Remove any spaces and keep only the first word
+            const words = value.trim().split(/\s+/);
+            if (words.length > 1) {
+                e.target.value = words[0];
+            }
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            // Prevent space key from being entered
+            if (e.key === ' ') {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // Apply single word enforcement to all word input fields
+    function initSingleWordInputs() {
+        const wordInputs = document.querySelectorAll('#word1, #word2, #word3');
+        wordInputs.forEach(enforceSingleWord);
+    }
+
+    // Set up adventure selection functionality
+    function setupAdventureSelection() {
+        const adventureButtons = document.querySelectorAll('.adventure-btn');
+        const descriptionTitle = document.querySelector('.adventure-description-title');
+        const descriptionText = document.querySelector('.adventure-description-text');
+        let selectedAdventure = null;
+
+        adventureButtons.forEach(button => {
+            // Click event for selection
+            button.addEventListener('click', () => {
+                // Remove selected class from all buttons
+                adventureButtons.forEach(btn => btn.classList.remove('selected'));
+                
+                // Add selected class to clicked button
+                button.classList.add('selected');
+                
+                // Update selected adventure
+                selectedAdventure = button.dataset.adventure;
+                
+                // Update description
+                updateDescription(selectedAdventure);
+            });
+
+            // Hover events for preview
+            button.addEventListener('mouseenter', () => {
+                if (!selectedAdventure) {
+                    updateDescription(button.dataset.adventure);
+                }
+            });
+
+            button.addEventListener('mouseleave', () => {
+                if (!selectedAdventure) {
+                    resetDescription();
+                } else {
+                    updateDescription(selectedAdventure);
+                }
+            });
+        });
+
+        function updateDescription(adventureKey) {
+            const adventure = adventureDescriptions[adventureKey];
+            if (adventure && descriptionTitle && descriptionText) {
+                descriptionTitle.textContent = adventure.title;
+                descriptionText.textContent = adventure.description;
+            }
+        }
+
+        function resetDescription() {
+            if (descriptionTitle && descriptionText) {
+                descriptionTitle.textContent = 'Choose an Adventure';
+                descriptionText.textContent = 'Hover over or click on an adventure button to see what exciting story awaits your pet!';
+            }
+        }
+    }
+
+    // Photo upload functionality
+    function initPhotoUpload() {
+        const photoInput = document.getElementById('petPhotoInput');
+        const uploadPlaceholder = document.querySelector('.upload-photo-placeholder');
+        const uploadText = document.querySelector('.upload-text');
+
+        if (photoInput && uploadPlaceholder && uploadText) {
+            photoInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select an image file.');
+                        return;
+                    }
+
+                    // Validate file size (max 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('File size must be less than 10MB.');
+                        return;
+                    }
+
+                    // Update the placeholder to show file selected
+                    uploadText.textContent = `Selected: ${file.name}`;
+                    uploadPlaceholder.style.borderColor = '#4f46e5';
+                    uploadPlaceholder.style.backgroundColor = 'rgba(79, 70, 229, 0.1)';
+                    
+                    // Optional: Preview the image
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // You can add image preview functionality here if needed
+                        console.log('Image loaded successfully');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+
+
+    // Story pagination functionality
+    function initStoryPagination() {
+        const storyPageContent = document.getElementById('storyPageContent');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentPageSpan = document.getElementById('currentPage');
+        const totalPagesSpan = document.getElementById('totalPages');
+        
+        if (!storyPageContent || !prevBtn || !nextBtn || !currentPageSpan || !totalPagesSpan) {
+            return; // Not on story page
+        }
+        
+        let currentPage = 1;
+        const totalPages = 9;
+        
+        // Set total pages
+        totalPagesSpan.textContent = totalPages;
+        
+        // Story pages data
+        const storyPages = [
+            {
+                type: "title",
+                title: "MyPet's Magical Adventure",
+                subtitle: "",
+                image: "🌟"
+            },
+            {
+                text: "Once upon a time, in a magical world far, far away, there lived a brave little pet who was about to embark on the greatest adventure of their life. The sun was shining brightly, and the birds were singing sweet melodies as our hero prepared for an unforgettable journey.",
+                image: "🌟"
+            },
+            {
+                text: "Our brave pet ventured into the enchanted forest, where ancient trees whispered secrets and magical creatures danced in the moonlight. The path ahead was filled with wonder and mystery, but our hero was not afraid. With courage in their heart, they took the first step into the unknown.",
+                image: "🌲"
+            },
+            {
+                text: "In the heart of the forest, our pet met a wise old owl who had been waiting for them. 'I've been expecting you,' the owl said with a twinkle in their eye. 'You are the chosen one who will save our magical kingdom from the darkness that threatens to consume it.'",
+                image: "🦉"
+            },
+            {
+                text: "The owl revealed that to save the kingdom, our pet must find the legendary Golden Bone, hidden deep within the Crystal Caves. This magical artifact had the power to restore peace and harmony to all the lands. The journey would be dangerous, but our hero was ready.",
+                image: "🦴"
+            },
+            {
+                text: "Deep beneath the earth, our pet discovered the Crystal Caves, where walls sparkled like diamonds and the air shimmered with magic. Strange creatures lurked in the shadows, but our brave hero pressed on, following the mysterious glow that led to the Golden Bone.",
+                image: "💎"
+            },
+            {
+                text: "At the heart of the caves, our pet faced the mighty Crystal Guardian, a magnificent creature made entirely of precious gems. 'To prove your worth,' the guardian boomed, 'you must solve my riddle and show me the true meaning of courage and friendship.'",
+                image: "🛡️"
+            },
+            {
+                text: "With wisdom and kindness, our pet solved the guardian's riddle and earned the right to claim the Golden Bone. As they touched the magical artifact, a brilliant light filled the caves, and our hero felt a surge of power and responsibility flow through them.",
+                image: "✨"
+            },
+            {
+                text: "Returning to the surface, our pet used the power of the Golden Bone to banish the darkness and restore peace to the magical kingdom. All the creatures celebrated, and our hero was hailed as the greatest adventurer of all time. The adventure was complete, but many more awaited!",
+                image: "🎉"
+            },
+            {
+                text: "The End!",
+                image: null
+            }
+        ];
+        
+        // Function to update page content
+        function updatePageContent(pageNumber) {
+            const page = storyPages[pageNumber - 1];
+            
+            // Special handling for the title page
+            if (page.type === "title") {
+                storyPageContent.innerHTML = `
+                    <div class="story-title-page">
+                        <h1 class="story-title-page-title">${page.title}</h1>
+                        <h2 class="story-title-page-subtitle">${page.subtitle}</h2>
+                        <div class="story-title-page-image">${page.image}</div>
+                    </div>
+                `;
+                
+                // Ensure the title has the solid blue color applied with a delay
+                setTimeout(() => {
+                    const titleElement = storyPageContent.querySelector('.story-title-page-title');
+                    if (titleElement) {
+                        // Apply solid blue color
+                        titleElement.style.color = '#45b7d1';
+                        titleElement.style.background = '';
+                        titleElement.style.backgroundSize = '';
+                        titleElement.style.webkitBackgroundClip = '';
+                        titleElement.style.webkitTextFillColor = '';
+                        titleElement.style.backgroundClip = '';
+                        titleElement.style.animation = '';
+                        
+                        // Force a reflow to ensure the styles are applied
+                        titleElement.offsetHeight;
+                    }
+                }, 100);
+            }
+            // Special handling for the last page (The End!)
+            else if (pageNumber === totalPages) {
+                storyPageContent.innerHTML = `
+                    <div class="story-end-text"><span>${page.text}</span></div>
+                `;
+            } else {
+                storyPageContent.innerHTML = `
+                    <div class="story-page-image">${page.image}</div>
+                    <p class="story-page-text">${page.text}</p>
+                `;
+            }
+            
+            // Update page number
+            currentPageSpan.textContent = pageNumber;
+            
+            // Update button states
+            prevBtn.disabled = pageNumber === 1;
+            nextBtn.disabled = pageNumber === totalPages;
+        }
+        
+        // Event listeners
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePageContent(currentPage);
+            }
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePageContent(currentPage);
+            }
+        });
+        
+        // Initialize with first page
+        updatePageContent(1);
+    }
+
     // Initialize when DOM is loaded
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            initSingleWordInputs();
+            initPhotoUpload();
+            initStoryPagination();
+        });
     } else {
         init();
+        initSingleWordInputs();
+        initPhotoUpload();
+        initStoryPagination();
     }
 })();
